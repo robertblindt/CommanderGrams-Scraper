@@ -13,7 +13,7 @@ def index():
         # print(form.commander.data)
         card_retrieval_list = processor.parseEDHrec_for_card_names(form.commander.data)
         if card_retrieval_list:
-            print(card_retrieval_list)
+            #print(card_retrieval_list)
             URL = 'https://commandergrams-api.onrender.com/api/insertcommander'
             payload = {'card_list': list(card_retrieval_list), 'commander': form.commander.data}
             r = requests.post(URL, json = payload, timeout=180)

@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 # you also need to pip install webdriver_manager.  it shouldnt be in the requirments.txt
-from webdriver_manager.chrome import ChromeDriverManager
+#from webdriver_manager.chrome import ChromeDriverManager
 from datetime import datetime, timedelta
 
 
@@ -45,10 +45,10 @@ class Processing():
         log_path = "{}/chromedriver.log".format('/app')
         service_args = ['--no-sandbox', '--headless','--disable-dev-shm-usage', '--verbose']
         # FOR WORKING ON MY LOCAL MACHINE
-        service=Service(ChromeDriverManager().install())
+        # service=Service(ChromeDriverManager().install())
         # For working on Docker container
-        # service = webdriver.chrome.service.Service(executable_path='/usr/local/bin/chromedriver-linux64/chromedriver', service_args = service_args, log_path=log_path)
-        print(service.service_args)    
+        service = webdriver.chrome.service.Service(executable_path='/usr/local/bin/chromedriver-linux64/chromedriver', service_args = service_args, log_path=log_path)
+        # print(service.service_args)    
         
         driver = webdriver.Chrome(options=options, service=service)
         # driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', service_args=service_args, service_log_path=service_log_path)
