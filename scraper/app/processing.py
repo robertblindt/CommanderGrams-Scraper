@@ -1,13 +1,12 @@
 import re
 import time
-import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 # you also need to pip install webdriver_manager.  it shouldnt be in the requirments.txt
-#from webdriver_manager.chrome import ChromeDriverManager
-from datetime import datetime, timedelta
+from webdriver_manager.chrome import ChromeDriverManager
+from unidecode import unidecode
 
 
 class Processing():
@@ -20,6 +19,7 @@ class Processing():
         # print(card_name)
         if '//' in card_name:
             card_name = card_name.split('//')[0]
+        card_name = unidecode(card_name)
         card_name = card_name.replace("'", "")
         word_pat = re.compile("[A-Za-z]+")
         cleaned_input = re.findall(word_pat, card_name)
@@ -29,7 +29,7 @@ class Processing():
             return '+'.join(cleaned_input).lower()
 
     def parseEDHrec_for_card_names(self, card_name):
-        edh_cleaned_input_name = self._clean_search_input(card_name,0)
+        # edh_cleaned_input_name = self._clean_search_input(card_name,0)
 
         options = Options()
         options.add_argument("--no-sandbox")
@@ -91,3 +91,61 @@ class Processing():
         print(set(page_card_cont))
         return set(page_card_cont)
     
+
+    def parseEDHrec_for_commanders(self, page_type):      
+        # FOR WORKING ON MY LOCAL MACHINE
+        # service=Service(ChromeDriverManager().install())
+        # For working on Docker container
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+        # options = Options()
+        # options.add_argument("--no-sandbox")
+        # options.add_argument("--headless")
+        # options.add_argument("--disable-dev-shm-usage")
+        # options.add_argument("--verbose") 
+        # options.add_argument("--disable-gpu")
+        # options.add_argument("--disable-features=dbus")
+        # log_path = "{}/chromedriver.log".format('/app')
+        # service_args = ['--no-sandbox', '--headless','--disable-dev-shm-usage', '--verbose']
+        # service = webdriver.chrome.service.Service(executable_path='/usr/local/bin/chromedriver-linux64/chromedriver', service_args = service_args, log_path=log_path)    
+        # driver = webdriver.Chrome(options=options, service=service)
+        
+        if page_type == 1:
+            url = 'https://edhrec.com/commanders/year'
+        elif page_type == 2:
+            url = 'https://edhrec.com/commanders/month'
+        # For some reason Week opens the week page, but get the year data...
+        elif page_type == 3:
+            url = 'https://edhrec.com/commanders/week'
+        else:
+            print("Only enter 'long'(default), 'month', or 'week'")
+            
+        # driver.implicitly_wait(10)
+        driver.get(url)
+        time.sleep(3)
+        # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        y = 1000
+        prev_pos = 0
+        # I need to scroll through the page in order to load all the card tags so I can grab the card names.
+        for timer in range(0,70):
+            driver.execute_script("window.scrollTo(0, "+str(y)+")")
+            
+            current_scroll_height = driver.execute_script("return document.documentElement.scrollHeight")
+            # This should break when the page gets to the bottom instead of going for the full 7
+            # Selenium is a bit slow and laggy, so this only helps so much.
+            if current_scroll_height < y:
+                #print('breaking')
+                break  
+                
+            y += 1000 
+            # print('scrolling')
+            time.sleep(.1)
+            
+        page_card_cont = []
+        for i in driver.find_elements(By.CLASS_NAME, 'Card_name__vpWb5'):
+            if ' // ' in i.text:
+                page_card_cont.append(i.text.split(' // ')[0])
+            else:
+                page_card_cont.append(i.text)
+        driver.close()
+        return set(page_card_cont)

@@ -1,27 +1,27 @@
 from . import api
-from flask import request
+import requests
+
 from app.processing import Processing
 
 processor = Processing()
 
-@api.route('/findcommander', methods = ["POST"])
-def commander_search():
+@api.route('/findcommanders/years', methods = ["GET"])
+def find_commanders_year():
     # JSON Check
-    if not request.is_json:
-        return {'error': 'Your content-type must be application/json'}, 400
-    data = request.json
-    required_fields = ['commander']
-    missing_fields = []
-    for field in required_fields:
-        if field not in data:
-            missing_fields.append(field)
-    if missing_fields:
-        return {'error': f"{', '.join(missing_fields)} must be in the request body"}, 400
-    # return data.get('commander')
-    card_retrieval_list = processor.parseEDHrec_for_card_names(data.get('commander'))
-    if card_retrieval_list:
-        processor.edhrec_list_db_check_and_retrieve(card_retrieval_list, data.get('commander'))
-        # print(form.commander.data)
-        processor.find_meaning(data.get('commander'))
-        return {'message':'Commander has been added or updated!'}
-    return {'error':'Either the commander has already been scraped, or the name is misspelled!'}
+    # Check the website for all the commanders
+    print('I got hit')
+    card_retrieval_list = processor.parseEDHrec_for_commanders(1)
+    # Loop to check if the commander needs to be scraped then scrapes it
+    print(card_retrieval_list)
+    for commander in card_retrieval_list:
+        URL = 'https://commandergrams-api.onrender.com/api/commanders'
+        payload = {'cardName': commander}
+        r = requests.post(URL, json = payload, timeout=180)
+        print(r)
+    return {'message': len(card_retrieval_list)}
+
+
+@api.route('/hi', methods = ["GET"])
+def hi():
+    print('hi')
+    return {'message':'hi'}
