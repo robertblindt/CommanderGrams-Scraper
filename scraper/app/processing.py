@@ -29,29 +29,22 @@ class Processing():
             return '+'.join(cleaned_input).lower()
 
     def parseEDHrec_for_card_names(self, card_name):
-        # edh_cleaned_input_name = self._clean_search_input(card_name,0)
-
-        options = Options()
-        options.add_argument("--no-sandbox")
-        options.add_argument("--headless")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--verbose") 
-        options.add_argument("--disable-gpu")
-        options.add_argument("--disable-features=dbus")       
-        # options.binary_location = "/usr/local/bin/chromedriver"
-        # driver = webdriver.Chrome(options=options)
-        # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        # service_log_path = "--log-path=D:\\qc1.log"
-        log_path = "{}/chromedriver.log".format('/app')
-        service_args = ['--no-sandbox', '--headless','--disable-dev-shm-usage', '--verbose']
         # FOR WORKING ON MY LOCAL MACHINE
         # service=Service(ChromeDriverManager().install())
         # For working on Docker container
-        service = webdriver.chrome.service.Service(executable_path='/usr/local/bin/chromedriver-linux64/chromedriver', service_args = service_args, log_path=log_path)
-        # print(service.service_args)    
-        
-        driver = webdriver.Chrome(options=options, service=service)
-        # driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', service_args=service_args, service_log_path=service_log_path)
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+        # options = Options()
+        # options.add_argument("--no-sandbox")
+        # options.add_argument("--headless")
+        # options.add_argument("--disable-dev-shm-usage")
+        # options.add_argument("--verbose") 
+        # options.add_argument("--disable-gpu")
+        # options.add_argument("--disable-features=dbus")
+        # log_path = "{}/chromedriver.log".format('/app')
+        # service_args = ['--no-sandbox', '--headless','--disable-dev-shm-usage', '--verbose']
+        # service = webdriver.chrome.service.Service(executable_path='/usr/local/bin/chromedriver-linux64/chromedriver', service_args = service_args, log_path=log_path)    
+        # driver = webdriver.Chrome(options=options, service=service)
 
         url = f'https://edhrec.com/commanders/{self._clean_search_input(card_name,0)}'
         # driver.implicitly_wait(10)
